@@ -1,0 +1,84 @@
+/* Background */
+body {
+    margin: 0;
+    font-family: "Segoe UI", sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+}
+
+/* Header */
+.ledger-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0,0,0,0.4);
+    padding: 15px 30px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    color: #fff;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* Navigation */
+.ledger-nav ul {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+    margin: 0;
+    padding: 0;
+}
+
+.ledger-nav ul li {
+    position: relative;
+}
+
+.ledger-nav a {
+    text-decoration: none;
+    color: #fff;
+    font-size: 16px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    transition: all 0.3s ease-in-out;
+}
+
+.ledger-nav a:hover,
+.ledger-nav a.active {
+    background: #ff9800;
+    color: #111;
+    transform: scale(1.05);
+}
+
+/* Simple underline animation */
+.ledger-nav a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -5px;
+    width: 0%;
+    height: 2px;
+    background: #ff9800;
+    transition: width 0.3s ease;
+}
+
+.ledger-nav a:hover::after {
+    width: 100%;
+}
+
+/* Main Content */
+.ledger-content {
+    padding: 20px;
+}
+
+/* Footer */
+.ledger-footer {
+    text-align: center;
+    padding: 15px;
+    background: rgba(0,0,0,0.4);
+    margin-top: 40px;
+    font-size: 14px;
+}
+
