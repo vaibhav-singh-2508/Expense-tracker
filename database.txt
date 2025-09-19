@@ -9,8 +9,7 @@ CREATE TABLE IF NOT EXISTS `budgets` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`,`category`,`month`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
+);
 
 
 DROP TABLE IF EXISTS `contacts`;
@@ -55,9 +54,7 @@ CREATE TABLE IF NOT EXISTS `expenses` (
   `status` enum('unpaid','paid') DEFAULT 'unpaid',
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
+) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 DROP TABLE IF EXISTS `feedback`;
@@ -68,8 +65,6 @@ CREATE TABLE IF NOT EXISTS `feedback` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
 
 DROP TABLE IF EXISTS `incomes`;
 CREATE TABLE IF NOT EXISTS `incomes` (
@@ -83,7 +78,6 @@ CREATE TABLE IF NOT EXISTS `incomes` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
 
 
 DROP TABLE IF EXISTS `ledger`;
@@ -102,18 +96,28 @@ CREATE TABLE IF NOT EXISTS `ledger` (
 ) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+INSERT INTO `ledger` (`id`, `user_id`, `customer_id`, `amount`, `remark`, `type`, `created_at`, `updated_at`) VALUES
+(17, 4, 1, 200.00, '', 'take', '2025-08-22 19:36:50', '2025-08-22 19:36:50'),
+(22, 4, 5, 1.00, 'pyar', 'take', '2025-08-28 13:25:16', '2025-08-28 13:25:16'),
+(19, 6, 3, 40.00, 'Nasto', 'give', '2025-08-25 13:51:31', '2025-08-25 13:51:31'),
+(15, 4, 1, 100.00, 'test', 'give', '2025-08-22 19:29:47', '2025-08-22 19:29:47'),
+(21, 4, 5, 1000.00, 'Ese Hii', 'give', '2025-08-28 13:25:02', '2025-08-28 13:25:02'),
+(25, 4, 5, 999.00, 'pyar', 'take', '2025-08-28 19:25:09', '2025-08-28 19:25:09');
+
+
 
 DROP TABLE IF EXISTS `notifications`;
 CREATE TABLE IF NOT EXISTS `notifications` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
+  `from_user_id` int DEFAULT NULL,
   `message` varchar(255) NOT NULL,
   `type` enum('success','info','warning','danger') NOT NULL DEFAULT 'info',
   `is_read` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`,`is_read`,`created_at`)
-) ENGINE=MyISAM AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 DROP TABLE IF EXISTS `shared_expenses`;
@@ -124,9 +128,10 @@ CREATE TABLE IF NOT EXISTS `shared_expenses` (
   `share_amount` decimal(10,2) NOT NULL,
   `is_settled` tinyint(1) DEFAULT '0',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `paid_request` tinyint(1) DEFAULT '0',
+  `settled_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 DROP TABLE IF EXISTS `transactions`;
@@ -158,3 +163,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
