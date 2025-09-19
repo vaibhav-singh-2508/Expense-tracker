@@ -109,6 +109,7 @@ $allStmt = $conn->prepare("
 ");
 $allStmt->execute([':uid' => $user_id]);
 $allNotifications = $allStmt->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
