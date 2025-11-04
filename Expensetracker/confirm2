@@ -1,0 +1,90 @@
+<?php
+session_start();
+require 'config.php';
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header("Location: activity.php");
+    exit;
+}
+
+$share_id = intval($_POST['share_id']);
+$owner_id = $_SESSION['user_id']; // main expense creator
+
+try {
+    // 1️⃣ Get share details + expense owner
+    $stmt = $conn->prepare("
+        SELECT se.expense_id, se.user_id AS payer_id, se.share_amount, se.is_settled, e.user_id AS expense_owner, e.note
+        FROM shared_expenses se
+        JOIN expenses e ON e.id = se.expense_id
+        WHERE se.id = ?
+    ");
+    $stmt->execute([$share_id]);
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$data) {
+        throw new Exception("Share not found");
+    }
+
+    if ($data['expense_owner'] != $owner_id) {
+        throw new Exception("Unauthorized: Not your expense");
+    }
+
+    if ($data['is_settled']) {
+        throw new Exception("Already settled");
+    }
+
+    // 2️⃣ Mark as settled
+    $update = $conn->prepare("
+        UPDATE shared_expenses 
+        SET is_settled = 1, settled_date = NOW() 
+        WHERE id = ?
+    ");
+    $update->execute([$share_id]);
+
+    $payer_id = $data['payer_id'];
+    $share_amount = $data['share_amount'];
+    $note = $data['note'];
+
+    // 3️⃣ Fetch payer & owner names
+    $payerName = getUserName($conn, $payer_id);
+    $ownerName = getUserName($conn, $owner_id);
+
+    // 4️⃣ Insert Expense (for payer)
+    $insertExpense = $conn->prepare("
+        INSERT INTO expenses (user_id, amount, category, expense_date, note, status)
+        VALUES (?, ?, 'Shared Expense Payment', CURDATE(), ?, 'paid')
+    ");
+    $insertExpense->execute([$payer_id, $share_amount, "Paid to $ownerName for '$note'"]);
+
+    // 5️⃣ Insert Income (for owner)
+    $insertIncome = $conn->prepare("
+        INSERT INTO incomes (user_id, amount, source, income_date, category)
+        VALUES (?, ?, ?, CURDATE(), 'Shared Expense Settlement')
+    ");
+    $insertIncome->execute([$owner_id, $share_amount, "Received from $payerName for '$note'"]);
+
+    // 6️⃣ Optional: notification
+    $msg = "Payment from $payerName confirmed and settled.";
+    $notify = $conn->prepare("INSERT INTO notifications (user_id, from_user_id, share_id, message) VALUES (?, ?, ?, ?)");
+    $notify->execute([$payer_id, $owner_id, $share_id, $msg]);
+
+    header("Location: activity.php?success=settled");
+    exit;
+
+} catch (Exception $e) {
+    header("Location: activity.php?error=" . urlencode($e->getMessage()));
+    exit;
+}
+
+// Helper function
+function getUserName($conn, $id) {
+    $stmt = $conn->prepare("SELECT name FROM users WHERE id = ?");
+    $stmt->execute([$id]);
+    return $stmt->fetchColumn();
+}
+?>
