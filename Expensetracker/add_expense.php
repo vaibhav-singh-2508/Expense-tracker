@@ -9,16 +9,16 @@ include 'config.php';
 
 $msg = "";
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $_SESSION['user_id'];
-    $amount = $_POST['amount'];
-    $category = $_POST['category'];
-    $expense_date = $_POST['expense_date'];
-    $note = $_POST['note'];
+    $amount = isset($_POST['amount']) ? trim($_POST['amount']) : '';
+    $category = isset($_POST['category']) ? trim($_POST['category']) : '';
+    $expense_date = isset($_POST['expense_date']) ? trim($_POST['expense_date']) : '';
+    $note = isset($_POST['note']) ? trim($_POST['note']) : '';
 
     // If user selected custom category
     if ($category === 'custom' && !empty($_POST['custom_category'])) {
-        $category = $_POST['custom_category'];
+        $category = trim($_POST['custom_category']);
     }
 
     try {
@@ -43,15 +43,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Insert shares for each selected user (not settled yet)
             foreach ($shared_users as $uid) {
                 $stmt = $conn->prepare("INSERT INTO shared_expenses 
-                    (expense_id, user_id, share_amount, is_settled, created_at) 
-                    VALUES (?, ?, ?, 0, NOW())");
+                    (expense_id, user_id, share_amount, is_settled, paid_request, created_at) 
+                    VALUES (?, ?, ?, 0, 0, NOW())");
                 $stmt->execute([$expense_id, $uid, $share_amount]);
             }
 
             // Insert your own share (already settled since you paid it)
             $stmt = $conn->prepare("INSERT INTO shared_expenses 
-                (expense_id, user_id, share_amount, is_settled, created_at, settled_date) 
-                VALUES (?, ?, ?, 1, NOW(), NOW())");
+    (expense_id, user_id, share_amount, is_settled, paid_request, created_at) 
+    VALUES (?, ?, ?, 0, 1, NOW())");
             $stmt->execute([$expense_id, $user_id, $share_amount]);
         }
 
@@ -74,111 +74,111 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             body {
                 font-family: 'Segoe UI', sans-serif;
                 background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-                margin:0;
-                padding:0;
-                color:#fff;
+                margin: 0;
+                padding: 0;
+                color: #fff;
             }
             header {
                 background: rgba(0,0,0,0.85);
                 color: #fff;
-                padding:15px 40px;
-                display:flex;
+                padding: 15px 40px;
+                display: flex;
                 justify-content: space-between;
-                align-items:center;
+                align-items: center;
             }
             header h1 {
-                margin:0;
-                font-size:26px;
+                margin: 0;
+                font-size: 26px;
             }
             nav ul {
-                list-style:none;
-                display:flex;
-                gap:20px;
-                margin:0;
-                padding:0;
+                list-style: none;
+                display: flex;
+                gap: 20px;
+                margin: 0;
+                padding: 0;
             }
             nav ul li a {
-                text-decoration:none;
-                color:#fff;
-                font-weight:500;
-                transition:0.3s;
+                text-decoration: none;
+                color: #fff;
+                font-weight: 500;
+                transition: 0.3s;
             }
             nav ul li a:hover {
-                color:#f39c12;
+                color: #f39c12;
             }
             .toggle-btn {
-                background:#f39c12;
-                border:none;
-                color:#fff;
-                padding:8px 14px;
-                border-radius:8px;
-                cursor:pointer;
-                font-size:14px;
-                transition:0.3s;
+                background: #f39c12;
+                border: none;
+                color: #fff;
+                padding: 8px 14px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: 0.3s;
             }
             .toggle-btn:hover {
-                background:#d35400;
+                background: #d35400;
             }
             h2 {
-                text-align:center;
-                margin-top:30px;
-                font-weight:600;
+                text-align: center;
+                margin-top: 30px;
+                font-weight: 600;
             }
             form {
-                background-color:#fff;
-                color:#333;
-                max-width:500px;
-                margin:30px auto;
-                padding:30px;
-                border-radius:20px;
-                box-shadow:0 10px 30px rgba(0,0,0,0.3);
+                background-color: #fff;
+                color: #333;
+                max-width: 500px;
+                margin: 30px auto;
+                padding: 30px;
+                border-radius: 20px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             }
             input[type="number"], input[type="date"], select, textarea, input[type="text"] {
-                width:100%;
-                padding:14px 16px;
-                margin-bottom:20px;
-                border:1px solid #ccc;
-                border-radius:12px;
-                font-size:16px;
+                width: 100%;
+                padding: 14px 16px;
+                margin-bottom: 20px;
+                border: 1px solid #ccc;
+                border-radius: 12px;
+                font-size: 16px;
             }
             input[type="submit"] {
-                width:100%;
-                background-color:#f39c12;
-                color:#fff;
-                border:none;
-                padding:14px;
-                font-size:16px;
-                font-weight:bold;
-                cursor:pointer;
-                border-radius:12px;
-                transition:0.3s;
+                width: 100%;
+                background-color: #f39c12;
+                color: #fff;
+                border: none;
+                padding: 14px;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+                border-radius: 12px;
+                transition: 0.3s;
             }
             input[type="submit"]:hover {
-                background-color:#d35400;
+                background-color: #d35400;
             }
             .msg {
-                text-align:center;
-                font-weight:500;
-                margin-top:10px;
-                color:green;
+                text-align: center;
+                font-weight: 500;
+                margin-top: 10px;
+                color: green;
             }
             .msg.error {
-                color:red;
+                color: red;
             }
             .back {
-                text-align:center;
-                margin-top:20px;
+                text-align: center;
+                margin-top: 20px;
             }
             .back a {
-                text-decoration:none;
-                color:#f39c12;
-                font-weight:500;
+                text-decoration: none;
+                color: #f39c12;
+                font-weight: 500;
             }
             .back a:hover {
-                text-decoration:underline;
+                text-decoration: underline;
             }
             .form-group {
-                margin-bottom:15px;
+                margin-bottom: 15px;
             }
         </style>
     </head>
@@ -230,8 +230,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 foreach ($users as $user) {
                     echo "<label style='display:block;'>
-                    <input type='checkbox' name='shared_users[]' value='{$user['id']}'> {$user['name']}
-                  </label>";
+                <input type='checkbox' name='shared_users[]' value='{$user['id']}'> {$user['name']}
+              </label>";
                 }
                 ?>
             </div>
