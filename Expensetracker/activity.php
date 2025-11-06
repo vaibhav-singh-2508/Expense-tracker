@@ -232,9 +232,11 @@ $settled_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <tr>
                                     <td><?= htmlspecialchars($s['description'] ?: 'Expense') ?></td>
                                     <td>₹<?= number_format($s['share_amount'], 2) ?></td>
-                                    <td><?= htmlspecialchars($s['paid_by_name']) ?></td>
-                                    <td><?= htmlspecialchars($s['owes_name']) ?></td>
-                                    <td class="small"><?= htmlspecialchars($s['settled_date']) ?></td>
+                                    <td><?= htmlspecialchars($s['paid_by_name'] ?? '') ?></td>
+                                    <td><?= htmlspecialchars($s['owes_name'] ?? '') ?></td>
+                                    <td class="small">
+                                        <?= $s['settled_date'] ? date('d M Y, h:i A', strtotime($s['settled_date'])) : '—' ?>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
