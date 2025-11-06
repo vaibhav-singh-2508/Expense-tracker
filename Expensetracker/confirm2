@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 require 'config.php';
 
@@ -70,12 +71,11 @@ try {
 
     // 6️⃣ Optional: notification
     $msg = "Payment from $payerName confirmed and settled.";
-    $notify = $conn->prepare("INSERT INTO notifications (user_id, from_user_id, share_id, message) VALUES (?, ?, ?, ?)");
-    $notify->execute([$payer_id, $owner_id, $share_id, $msg]);
+    $notify = $conn->prepare("INSERT INTO notifications (user_id, from_user_id, message) VALUES (?, ?, ?)");
+    $notify->execute([$payer_id, $owner_id, $msg]);
 
     header("Location: activity.php?success=settled");
     exit;
-
 } catch (Exception $e) {
     header("Location: activity.php?error=" . urlencode($e->getMessage()));
     exit;
@@ -87,4 +87,6 @@ function getUserName($conn, $id) {
     $stmt->execute([$id]);
     return $stmt->fetchColumn();
 }
+
 ?>
+
