@@ -1,3 +1,32 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1:3306
+-- Generation Time: Nov 06, 2025 at 12:41 PM
+-- Server version: 8.2.0
+-- PHP Version: 8.2.13
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `expense_tracker`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `budgets`
+--
+
 DROP TABLE IF EXISTS `budgets`;
 CREATE TABLE IF NOT EXISTS `budgets` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -9,24 +38,26 @@ CREATE TABLE IF NOT EXISTS `budgets` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`,`category`,`month`)
-);
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `budgets`
+--
 
-DROP TABLE IF EXISTS `contacts`;
-CREATE TABLE IF NOT EXISTS `contacts` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `email` varchar(150) DEFAULT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `note` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+INSERT INTO `budgets` (`id`, `user_id`, `category`, `budget_amount`, `month`, `created_at`, `updated_at`) VALUES
+(1, 4, 'Other', 1000.00, '2025-09', '2025-09-18 14:03:42', '2025-09-18 14:03:42'),
+(2, 4, 'Food', 200.00, '2025-09', '2025-09-18 14:05:57', '2025-09-19 19:54:38'),
+(4, 6, 'Food', 200.00, '2025-09', '2025-09-18 17:09:15', '2025-09-18 19:12:08'),
+(5, 4, 'Trip', 1000.00, '2025-09', '2025-09-21 13:19:08', '2025-09-21 13:19:08'),
+(6, 4, 'Food', 0.00, '2025-10', '2025-10-13 11:59:12', '2025-10-13 12:45:49'),
+(7, 4, 'Other', 1000.00, '2025-10', '2025-10-13 11:59:12', '2025-10-13 11:59:12'),
+(8, 4, 'Trip', 500.00, '2025-10', '2025-10-13 11:59:12', '2025-10-13 12:00:30');
 
+-- --------------------------------------------------------
 
+--
+-- Table structure for table `customers`
+--
 
 DROP TABLE IF EXISTS `customers`;
 CREATE TABLE IF NOT EXISTS `customers` (
@@ -40,7 +71,20 @@ CREATE TABLE IF NOT EXISTS `customers` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `customers`
+--
 
+INSERT INTO `customers` (`id`, `user_id`, `name`, `phone`, `email`, `created_at`, `updated_at`) VALUES
+(1, 4, 'Vaibhav', '6355775951', 'v@gmail.com', '2025-08-21 19:18:11', '2025-08-21 19:18:11'),
+(3, 6, 'Vaibhav', '123456789', 'A@gmail.com', '2025-08-23 18:58:56', '2025-08-23 18:58:56'),
+(5, 4, 'khushi', '2508', 'k2@gmail.com', '2025-08-27 19:37:59', '2025-08-28 13:24:27');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `expenses`
+--
 
 DROP TABLE IF EXISTS `expenses`;
 CREATE TABLE IF NOT EXISTS `expenses` (
@@ -54,8 +98,43 @@ CREATE TABLE IF NOT EXISTS `expenses` (
   `status` enum('unpaid','paid') DEFAULT 'unpaid',
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `expenses`
+--
+
+INSERT INTO `expenses` (`id`, `user_id`, `amount`, `category`, `expense_date`, `note`, `created_at`, `status`) VALUES
+(1, 1, 20.00, 'Food', '2025-07-29', 'Chaii', '2025-07-29 11:06:03', 'unpaid'),
+(3, 2, 10000.00, 'Other', '2025-07-29', 'me', '2025-07-29 11:40:51', 'unpaid'),
+(4, 3, 500.00, 'Shopping', '2025-07-29', '', '2025-07-30 12:55:15', 'unpaid'),
+(6, 1, 1000.00, 'Shopping', '2025-08-02', '', '2025-08-02 20:36:19', 'unpaid'),
+(24, 5, 100.00, 'Travel', '2025-08-23', '', '2025-08-23 13:16:47', 'unpaid'),
+(25, 5, 20.00, 'Travel', '2025-08-22', '', '2025-08-23 13:20:36', 'unpaid'),
+(28, 4, 1000.00, 'Food', '2025-08-27', '', '2025-08-27 19:59:19', 'unpaid'),
+(29, 4, 500.00, 'Test', '2025-08-28', '', '2025-08-27 20:01:37', 'unpaid'),
+(31, 4, 9.00, 'Food', '2025-08-31', '', '2025-09-18 13:09:21', 'unpaid'),
+(34, 4, 200.00, 'movie', '2025-09-18', '', '2025-09-18 15:59:30', 'unpaid'),
+(35, 4, 80.00, 'Food', '2025-09-18', '', '2025-09-18 16:02:01', 'unpaid'),
+(37, 6, 100.00, 'Food', '2025-09-18', '', '2025-09-18 17:08:50', 'unpaid'),
+(41, 6, 100.00, 'Bills', '2025-09-19', 'test', '2025-09-19 20:24:48', 'unpaid'),
+(42, 4, 100.00, 'Food', '2025-09-19', 'test', '2025-09-19 20:29:41', 'unpaid'),
+(44, 7, 150.00, 'Food', '2025-09-28', 'test', '2025-09-28 10:10:56', 'unpaid'),
+(47, 4, 20.00, 'Food', '2025-11-03', 'chai', '2025-11-03 16:24:08', 'unpaid'),
+(48, 7, 10.00, 'Shared Payment', NULL, 'Paid to hero for chai', '2025-11-03 16:31:33', 'unpaid'),
+(59, 4, 10.00, 'Food', '2025-11-04', 'teaa', '2025-11-04 04:29:34', 'unpaid'),
+(60, 4, 25.00, 'Food', '2025-11-04', 'vadapav', '2025-11-04 04:44:31', 'unpaid'),
+(63, 7, 60.00, 'Shopping', '2025-11-04', 'Hulk', '2025-11-04 05:03:36', 'unpaid'),
+(64, 4, 90.00, 'Travel', '2025-11-04', 'Iron Man', '2025-11-04 05:16:33', 'unpaid'),
+(65, 4, 85.00, 'movie', '2025-11-04', 'spiderman', '2025-11-04 05:32:00', 'unpaid'),
+(66, 7, 100.00, 'Other', '2025-11-04', 'Thor', '2025-11-04 06:19:13', 'unpaid'),
+(67, 4, 50.00, 'Shared Expense Payment', '2025-11-04', 'Paid to khushi for \'Thor\'', '2025-11-04 06:21:23', 'paid');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `feedback`
+--
 
 DROP TABLE IF EXISTS `feedback`;
 CREATE TABLE IF NOT EXISTS `feedback` (
@@ -65,6 +144,20 @@ CREATE TABLE IF NOT EXISTS `feedback` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `feedback`
+--
+
+INSERT INTO `feedback` (`id`, `name`, `message`, `created_at`) VALUES
+(1, 'Vaibhav', 'Nicee work', '2025-08-29 13:31:09'),
+(2, 'khushi', 'hiiiii', '2025-08-29 13:34:33');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `incomes`
+--
 
 DROP TABLE IF EXISTS `incomes`;
 CREATE TABLE IF NOT EXISTS `incomes` (
@@ -77,8 +170,32 @@ CREATE TABLE IF NOT EXISTS `incomes` (
   `category` varchar(100) DEFAULT 'General',
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `incomes`
+--
+
+INSERT INTO `incomes` (`id`, `user_id`, `amount`, `source`, `income_date`, `created_at`, `category`) VALUES
+(2, 1, 2000.00, 'salary', '2025-07-10', '2025-07-29 11:37:10', 'General'),
+(3, 2, 20000.00, 'salary', '2025-07-29', '2025-07-29 11:40:02', 'General'),
+(4, 3, 1000.00, 'salary', '2025-07-30', '2025-07-30 12:54:52', 'General'),
+(6, 1, 100.00, 'salary', '2025-08-03', '2025-08-02 20:33:19', 'General'),
+(7, 1, 2000.00, 'salary', '2025-08-15', '2025-08-15 14:03:46', 'General'),
+(9, 1, 100.00, 'salary', '2025-08-16', '2025-08-17 13:10:22', 'General'),
+(12, 5, 10.00, 'salary', '2025-08-23', '2025-08-23 12:48:35', 'General'),
+(13, 5, 100.00, 'salary', '2025-08-22', '2025-08-23 13:07:26', 'General'),
+(17, 4, 2000.00, 'salary', '2025-08-27', '2025-08-27 19:57:43', 'General'),
+(18, 4, 100.00, 'salary', '2025-09-18', '2025-09-18 12:58:03', 'General'),
+(19, 4, 10.00, 'test', '2025-08-18', '2025-09-18 12:58:36', 'General'),
+(21, 6, 100.00, 'salary', '2025-09-19', '2025-09-18 19:11:20', 'General'),
+(23, 7, 50.00, 'Received from hero for \'Thor\'', '2025-11-04', '2025-11-04 06:21:23', 'Shared Expense Settlement');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ledger`
+--
 
 DROP TABLE IF EXISTS `ledger`;
 CREATE TABLE IF NOT EXISTS `ledger` (
@@ -95,6 +212,9 @@ CREATE TABLE IF NOT EXISTS `ledger` (
   KEY `customer_id` (`customer_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `ledger`
+--
 
 INSERT INTO `ledger` (`id`, `user_id`, `customer_id`, `amount`, `remark`, `type`, `created_at`, `updated_at`) VALUES
 (17, 4, 1, 200.00, '', 'take', '2025-08-22 19:36:50', '2025-08-22 19:36:50'),
@@ -104,7 +224,11 @@ INSERT INTO `ledger` (`id`, `user_id`, `customer_id`, `amount`, `remark`, `type`
 (21, 4, 5, 1000.00, 'Ese Hii', 'give', '2025-08-28 13:25:02', '2025-08-28 13:25:02'),
 (25, 4, 5, 999.00, 'pyar', 'take', '2025-08-28 19:25:09', '2025-08-28 19:25:09');
 
+-- --------------------------------------------------------
 
+--
+-- Table structure for table `notifications`
+--
 
 DROP TABLE IF EXISTS `notifications`;
 CREATE TABLE IF NOT EXISTS `notifications` (
@@ -117,8 +241,30 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`,`is_read`,`created_at`)
-) ENGINE=MyISAM AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `notifications`
+--
+
+INSERT INTO `notifications` (`id`, `user_id`, `from_user_id`, `message`, `type`, `is_read`, `created_at`) VALUES
+(52, 6, NULL, 'Income of ₹4000 added from salary', '', 0, '2025-09-18 19:07:24'),
+(54, 6, NULL, '📈 Your expenses this month have increased compared to last month.', 'warning', 0, '2025-09-19 20:18:29'),
+(53, 6, NULL, 'Income of ₹100 added from salary', '', 0, '2025-09-18 19:11:20'),
+(51, 4, NULL, 'Income of ₹10 added from test', '', 0, '2025-09-18 12:58:36'),
+(50, 4, NULL, 'Income of ₹100 added from salary', '', 0, '2025-09-18 12:58:03'),
+(48, 4, NULL, '📈 Your expenses this month have increased compared to last month.', 'warning', 0, '2025-08-29 16:27:13'),
+(49, 4, NULL, '📈 Your expenses this month have increased compared to last month.', 'warning', 0, '2025-08-29 19:46:37'),
+(55, 6, NULL, '💸 Your cash in hand is negative. Please review your expenses.', 'danger', 0, '2025-09-19 20:24:57'),
+(56, 4, NULL, '📉 Your expenses this month are lower than last month.', 'success', 0, '2025-09-19 20:26:00'),
+(57, 7, NULL, 'Income of ₹100 added from salary', '', 0, '2025-09-20 16:23:50'),
+(58, 4, NULL, '📉 Your expenses this month are lower than last month.', 'success', 0, '2025-09-21 13:18:22');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `shared_expenses`
+--
 
 DROP TABLE IF EXISTS `shared_expenses`;
 CREATE TABLE IF NOT EXISTS `shared_expenses` (
@@ -128,11 +274,31 @@ CREATE TABLE IF NOT EXISTS `shared_expenses` (
   `share_amount` decimal(10,2) NOT NULL,
   `is_settled` tinyint(1) DEFAULT '0',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `paid_request` tinyint(1) DEFAULT '0',
+  `paid_request` tinyint(1) NOT NULL DEFAULT '0',
   `settled_date` datetime DEFAULT NULL,
+  `shared_with_name` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=56 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `shared_expenses`
+--
+
+INSERT INTO `shared_expenses` (`id`, `expense_id`, `user_id`, `share_amount`, `is_settled`, `created_at`, `paid_request`, `settled_date`, `shared_with_name`) VALUES
+(51, 64, 4, 45.00, 0, '2025-11-04 05:16:33', 1, NULL, NULL),
+(50, 64, 7, 45.00, 1, '2025-11-04 05:16:33', 0, '2025-11-04 11:01:30', NULL),
+(49, 63, 7, 30.00, 1, '2025-11-04 05:03:36', 2, '2025-11-04 10:39:27', NULL),
+(48, 63, 4, 30.00, 1, '2025-11-04 05:03:36', 0, '2025-11-04 11:01:07', NULL),
+(52, 65, 7, 42.50, 1, '2025-11-04 05:32:00', 0, '2025-11-04 11:02:45', NULL),
+(53, 65, 4, 42.50, 0, '2025-11-04 05:32:00', 1, NULL, NULL),
+(54, 66, 4, 50.00, 1, '2025-11-04 06:19:13', 1, '2025-11-04 11:51:23', NULL),
+(55, 66, 7, 50.00, 0, '2025-11-04 06:19:13', 1, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `transactions`
+--
 
 DROP TABLE IF EXISTS `transactions`;
 CREATE TABLE IF NOT EXISTS `transactions` (
@@ -150,7 +316,11 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   KEY `contact_id` (`contact_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- --------------------------------------------------------
 
+--
+-- Table structure for table `users`
+--
 
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
@@ -161,5 +331,35 @@ CREATE TABLE IF NOT EXISTS `users` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `name`, `email`, `password`, `created_at`) VALUES
+(4, 'hero', 'hero@gmail.com', '$2y$10$gFGnhPSkkJHtLGvMKP9PculZauDussLhKXuvcTo3/xOhmycENIGvK', '2025-08-18 07:15:10'),
+(6, 'kisu', 'test@gmail.com', '$2y$10$zTfNRXalQ3Ilb0t9zxSoaOr.c4xyv2z6nDIxxTMew80wvQXbzGOIu', '2025-08-23 07:53:21'),
+(7, 'khushi', 'k@gmail.com', '$2y$10$cARhySH7oV9ViAoDcn8gduPmoizTXOhgDc7hCsf7ZZyBeKt6.Ruqa', '2025-09-28 10:09:31');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_contacts`
+--
+
+DROP TABLE IF EXISTS `user_contacts`;
+CREATE TABLE IF NOT EXISTS `user_contacts` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `owner_id` int NOT NULL,
+  `contact_name` varchar(100) NOT NULL,
+  `contact_email` varchar(150) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `owner_id` (`owner_id`,`contact_email`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
