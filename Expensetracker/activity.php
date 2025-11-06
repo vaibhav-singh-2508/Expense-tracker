@@ -8,32 +8,41 @@ require 'config.php';
 
 $user_id = $_SESSION['user_id'];
 
-// Expenses YOU owe (pending)
-$stmt = $conn->prepare("SELECT se.id as share_id, e.note as description, e.amount as total_amount, se.share_amount, u.name as paid_by, se.paid_request
-                        FROM shared_expenses se
-                        JOIN expenses e ON se.expense_id = e.id
-                        JOIN users u ON e.user_id = u.id
-                        WHERE se.user_id = ? AND se.is_settled = 0 AND e.user_id != ?");
+/// Expenses YOU owe (pending)
+$stmt = $conn->prepare("
+    SELECT se.id as share_id, e.note as description, e.amount as total_amount,
+           se.share_amount, e.user_id as paid_by_id, 
+           (SELECT name FROM users WHERE id = e.user_id) as paid_by,
+           se.paid_request
+    FROM shared_expenses se
+    JOIN expenses e ON se.expense_id = e.id
+    WHERE se.user_id = ? AND se.is_settled = 0 AND e.user_id != ?
+");
 $stmt->execute([$user_id, $user_id]);
 $owe_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Expenses OTHERS owe YOU (pending)
-$stmt = $conn->prepare("SELECT se.id as share_id, e.note as description, e.amount as total_amount, se.share_amount, u.name as owes_user, se.paid_request
-                        FROM shared_expenses se
-                        JOIN expenses e ON se.expense_id = e.id
-                        JOIN users u ON se.user_id = u.id
-                        WHERE e.user_id = ? AND se.user_id != ? AND se.is_settled = 0");
-$stmt->execute([$user_id, $user_id]);
+$stmt = $conn->prepare("
+    SELECT se.id as share_id, e.note as description, e.amount as total_amount,
+           se.share_amount, se.shared_with_name as owes_user, se.paid_request
+    FROM shared_expenses se
+    JOIN expenses e ON se.expense_id = e.id
+    WHERE e.user_id = ? AND se.is_settled = 0
+");
+$stmt->execute([$user_id]);
 $owed_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Settled history (either you paid or you received)
-$stmt = $conn->prepare("SELECT se.id as share_id, e.note as description, e.amount as total_amount, se.share_amount, se.settled_date,
-                              se.user_id AS owes_user_id, (SELECT name FROM users WHERE id = se.user_id) as owes_name,
-                              e.user_id AS paid_by_id, (SELECT name FROM users WHERE id = e.user_id) as paid_by_name
-                       FROM shared_expenses se
-                       JOIN expenses e ON se.expense_id = e.id
-                       WHERE (se.user_id = ? OR e.user_id = ?) AND se.is_settled = 1
-                       ORDER BY se.settled_date DESC LIMIT 50");
+// Settled history
+$stmt = $conn->prepare("
+    SELECT se.id as share_id, e.note as description, e.amount as total_amount, 
+           se.share_amount, se.settled_date,
+           se.shared_with_name as owes_name,
+           (SELECT name FROM users WHERE id = e.user_id) as paid_by_name
+    FROM shared_expenses se
+    JOIN expenses e ON se.expense_id = e.id
+    WHERE (se.user_id = ? OR e.user_id = ?) AND se.is_settled = 1
+    ORDER BY se.settled_date DESC LIMIT 50
+");
 $stmt->execute([$user_id, $user_id]);
 $settled_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
