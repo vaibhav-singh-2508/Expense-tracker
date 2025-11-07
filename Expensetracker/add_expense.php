@@ -30,8 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // 2️⃣ Handle shared expense
         if (isset($_POST['is_shared'])) {
-            $names = isset($_POST['shared_name']) && is_array($_POST['shared_name']) ? $_POST['shared_name'] : [];
-            $emails = isset($_POST['shared_email']) && is_array($_POST['shared_email']) ? $_POST['shared_email'] : [];
+            $names = json_decode($_POST['shared_name_json'] ?? '[]', true);
+            $emails = json_decode($_POST['shared_email_json'] ?? '[]', true);
 
             $contacts = [];
             $count = min(count($names), count($emails));
@@ -203,28 +203,24 @@ $contacts = $contactStmt->fetchAll(PDO::FETCH_ASSOC);
     .add-contact:hover {
         background: #2c5364;
     }
-    /* ✅ Shared Expense Checkbox Alignment */
-.shared-section {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 10px 0 20px;
-}
-
-.shared-section input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: #f39c12; /* adds golden tint for modern browsers */
-    cursor: pointer;
-}
-
-.shared-section label {
-    font-size: 16px;
-    color: #333;
-    cursor: pointer;
-    user-select: none;
-}
-
+    .shared-section {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 10px 0 20px;
+    }
+    .shared-section input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #f39c12;
+        cursor: pointer;
+    }
+    .shared-section label {
+        font-size: 16px;
+        color: #333;
+        cursor: pointer;
+        user-select: none;
+    }
 </style>
 </head>
 <body>
@@ -256,20 +252,20 @@ $contacts = $contactStmt->fetchAll(PDO::FETCH_ASSOC);
     <input type="date" name="expense_date" required>
     <textarea name="note" placeholder="Note (optional)" rows="3"></textarea>
 
-<!--    <label><input type="checkbox" id="is_shared" name="is_shared"> Shared Expense</label>-->
     <div class="shared-section">
-    <input type="checkbox" id="is_shared" name="is_shared">
-    <label for="is_shared">Shared Expense</label>
-</div>
+        <input type="checkbox" id="is_shared" name="is_shared">
+        <label for="is_shared">Shared Expense</label>
+    </div>
 
     <div id="shared_div" style="display:none;">
         <h3>Saved Contacts</h3>
         <div class="contact-list">
             <?php foreach ($contacts as $c): ?>
                 <label>
-                    <input type="checkbox" name="shared_name[]" value="<?= htmlspecialchars($c['contact_name']) ?>" data-email="<?= htmlspecialchars($c['contact_email']) ?>">
+                    <input type="checkbox" class="shared-contact"
+                        data-name="<?= htmlspecialchars($c['contact_name']) ?>"
+                        data-email="<?= htmlspecialchars($c['contact_email']) ?>">
                     <?= htmlspecialchars($c['contact_name']) ?> (<?= htmlspecialchars($c['contact_email']) ?>)
-                    <input type="hidden" name="shared_email[]" value="<?= htmlspecialchars($c['contact_email']) ?>">
                 </label>
             <?php endforeach; ?>
         </div>
@@ -279,7 +275,12 @@ $contacts = $contactStmt->fetchAll(PDO::FETCH_ASSOC);
         <button type="button" class="add-contact" onclick="addContact()">+ Add Contact</button>
     </div>
 
+    <!-- Hidden JSON fields -->
+    <input type="hidden" name="shared_name_json" id="shared_name_json">
+    <input type="hidden" name="shared_email_json" id="shared_email_json">
+
     <input type="submit" value="Add Expense">
+
     <?php if (!empty($msg)): ?>
         <p class="msg" style="color: <?= strpos($msg, 'Error') !== false ? 'red' : (strpos($msg, '⚠️') !== false ? 'orange' : 'green') ?>;">
             <?= htmlspecialchars($msg) ?>
@@ -288,26 +289,51 @@ $contacts = $contactStmt->fetchAll(PDO::FETCH_ASSOC);
 </form>
 
 <script>
-    const category = document.getElementById("category");
-    const custom = document.getElementById("custom_category");
-    const sharedDiv = document.getElementById("shared_div");
+const category = document.getElementById("category");
+const custom = document.getElementById("custom_category");
+const sharedDiv = document.getElementById("shared_div");
 
-    category.addEventListener("change", () => {
-        custom.style.display = category.value === "custom" ? "block" : "none";
+category.addEventListener("change", () => {
+    custom.style.display = category.value === "custom" ? "block" : "none";
+});
+
+document.getElementById("is_shared").addEventListener("change", function() {
+    sharedDiv.style.display = this.checked ? "block" : "none";
+});
+
+function addContact() {
+    const div = document.createElement("div");
+    div.innerHTML = `
+        <input type="text" name="shared_name[]" placeholder="Name" required>
+        <input type="email" name="shared_email[]" placeholder="Email" required>
+    `;
+    document.getElementById("new_contacts").appendChild(div);
+}
+
+// ✅ Collect checked contacts before submit
+document.querySelector("form").addEventListener("submit", function(e) {
+    const selectedContacts = document.querySelectorAll(".shared-contact:checked");
+    const names = [];
+    const emails = [];
+
+    selectedContacts.forEach(c => {
+        names.push(c.dataset.name);
+        emails.push(c.dataset.email);
     });
 
-    document.getElementById("is_shared").addEventListener("change", function() {
-        sharedDiv.style.display = this.checked ? "block" : "none";
+    // Include new manually added contacts
+    document.querySelectorAll("#new_contacts div").forEach(div => {
+        const n = div.querySelector('input[name="shared_name[]"]')?.value.trim();
+        const e = div.querySelector('input[name="shared_email[]"]')?.value.trim();
+        if (n && e) {
+            names.push(n);
+            emails.push(e);
+        }
     });
 
-    function addContact() {
-        const div = document.createElement("div");
-        div.innerHTML = `
-            <input type="text" name="shared_name[]" placeholder="Name" required>
-            <input type="email" name="shared_email[]" placeholder="Email" required>
-        `;
-        document.getElementById("new_contacts").appendChild(div);
-    }
+    document.getElementById("shared_name_json").value = JSON.stringify(names);
+    document.getElementById("shared_email_json").value = JSON.stringify(emails);
+});
 </script>
 </body>
 </html>
