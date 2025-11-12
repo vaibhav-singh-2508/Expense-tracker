@@ -25,10 +25,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
 // Handle Update
 // ----------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
-    $amount = $_POST['amount'] ?? 0;
-    $category = $_POST['category'] ?? '';
+    $amount = trim($_POST['amount'] ?? '');
+    $category = trim($_POST['category'] ?? '');
     $expense_date = $_POST['expense_date'] ?? '';
-    $note = $_POST['note'] ?? '';
+    $note = trim($_POST['note'] ?? '');
 
     $update = $conn->prepare("
         UPDATE expenses 
@@ -62,6 +62,13 @@ $amount = $row['amount'];
 $category = $row['category'];
 $expense_date = $row['expense_date'];
 $note = $row['note'];
+
+// ----------------------
+// Fetch Category List (Dynamic from user's existing expenses)
+// ----------------------
+$cat_stmt = $conn->prepare("SELECT DISTINCT category FROM expenses WHERE user_id = :user_id ORDER BY category ASC");
+$cat_stmt->execute([':user_id' => $user_id]);
+$categories = $cat_stmt->fetchAll(PDO::FETCH_COLUMN);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -194,17 +201,7 @@ $note = $row['note'];
       text-align: center;
       color: black;
     }
-    .form-footer {
-      padding: 10px;
-      text-align: center;
-      background-color: #f8f9fa;
-    }
   </style>
-  <script>
-    function toggleMode() {
-      document.body.classList.toggle("dark-mode");
-    }
-  </script>
 </head>
 <body>
 
@@ -233,11 +230,18 @@ $note = $row['note'];
         <input type="number" step="0.01" name="amount" value="<?= htmlspecialchars($amount) ?>" required />
 
         <label>Category</label>
-        <select name="category" required>
-          <?php foreach(['Food','Travel','Shopping','Bills','Other'] as $cat): ?>
-            <option value="<?= $cat ?>" <?= $category == $cat ? 'selected' : '' ?>><?= $cat ?></option>
+        <select name="category" id="categorySelect" required>
+          <?php foreach ($categories as $cat): ?>
+            <option value="<?= htmlspecialchars($cat) ?>" <?= ($category === $cat ? 'selected' : '') ?>>
+              <?= htmlspecialchars($cat) ?>
+            </option>
           <?php endforeach; ?>
         </select>
+
+        <div style="margin-top:8px;">
+          <input type="text" id="newCategory" placeholder="Enter new category" style="width:70%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+          <button type="button" onclick="addCategory()" style="padding:8px 10px; border:none; background-color:#dc3545; color:white; border-radius:5px; cursor:pointer;">➕ Add</button>
+        </div>
 
         <label>Date</label>
         <input type="date" name="expense_date" value="<?= htmlspecialchars($expense_date) ?>" required />
@@ -256,6 +260,40 @@ $note = $row['note'];
     </div>
   </div>
 </main>
+
+<script>
+function toggleMode() {
+  document.body.classList.toggle("dark-mode");
+}
+
+function addCategory() {
+  const newCat = document.getElementById('newCategory').value.trim();
+  const select = document.getElementById('categorySelect');
+
+  if (newCat === '') {
+    alert('Please enter a category name.');
+    return;
+  }
+
+  // Check if category already exists
+  for (let i = 0; i < select.options.length; i++) {
+    if (select.options[i].value.toLowerCase() === newCat.toLowerCase()) {
+      alert('This category already exists.');
+      select.value = select.options[i].value; // select it
+      return;
+    }
+  }
+
+  // Create new option dynamically
+  const opt = document.createElement('option');
+  opt.value = newCat;
+  opt.text = newCat;
+  opt.selected = true;
+  select.appendChild(opt);
+
+  document.getElementById('newCategory').value = '';
+}
+</script>
 
 </body>
 </html>
